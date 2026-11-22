@@ -1,384 +1,278 @@
-# 🛒 Warung Copilot
+# Warung Copilot
 
-> Kelola toko online Anda dengan AI Assistant yang cerdas dan powerful.
+Dashboard manajemen toko berbasis AI. Admin dapat mengelola produk, mencatat transaksi penjualan, dan melihat ringkasan toko menggunakan bahasa natural melalui asisten chat.
 
-![Next.js](https://img.shields.io/badge/Next.js-16.4.6-black?style=flat-square&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.3.3-38B2AC?style=flat-square&logo=tailwind-css)
-![Supabase](https://img.shields.io/badge/Supabase-2.119.2-3ECF8E?style=flat-square&logo=supabase)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+## Daftar Isi
 
-Dashboard toko online berbasis AI di mana Admin dapat mengelola produk menggunakan bahasa natural melalui AI Agent yang pintar dan konsisten.
+- [Fitur](#fitur)
+- [Tech Stack](#tech-stack)
+- [Memulai](#memulai)
+- [Contoh Penggunaan](#contoh-penggunaan)
+- [Arsitektur](#arsitektur)
+- [Struktur Proyek](#struktur-proyek)
+- [Daftar Tool](#daftar-tool)
+- [Konfigurasi](#konfigurasi)
+- [Deployment](#deployment)
+- [Troubleshooting](#troubleshooting)
+- [Kontribusi](#kontribusi)
+- [Roadmap](#roadmap)
+- [Lisensi](#lisensi)
 
-## 📑 Daftar Isi
+## Fitur
 
-- [Fitur Utama](#-fitur-utama)
-- [Quick Start](#-quick-start)
-- [Contoh Penggunaan](#-contoh-penggunaan)
-- [Tech Stack](#-tech-stack)
-- [Arsitektur AI](#-arsitektur-ai)
-- [Struktur Proyek](#-struktur-proyek)
-- [Detail Fitur](#-detail-fitur)
-- [Deployment](#-deployment)
-- [Konfigurasi](#-konfigurasi)
-- [Performa](#-performa)
-- [Troubleshooting](#-troubleshooting)
-- [Kontribusi](#-kontribusi)
-- [Roadmap](#-roadmap)
-- [Dokumentasi](#-dokumentasi)
-- [Lisensi](#-lisensi)
-- [Ucapan Terima Kasih](#-ucapan-terima-kasih)
-- [Dukungan](#-dukungan)
+- **Asisten AI** untuk menjalankan operasi toko lewat percakapan.
+- **Manajemen produk**: tambah, ubah, hapus, cari, dan restok produk.
+- **Point of Sale**: pencatatan penjualan, perhitungan total dan kembalian, serta pengurangan stok otomatis.
+- **Analisis toko**: total produk, total stok, valuasi aset, daftar stok kritis, dan produk termahal.
+- **Pembaruan data otomatis**: tabel produk di-refresh secara berkala tanpa reload halaman.
+- **Deteksi pola**: query sederhana diproses langsung tanpa memanggil model, sehingga menghemat token dan kuota.
+- **Normalisasi input**: format angka seperti `10k`, `15rb`, dan `1jt` dikonversi otomatis.
 
-## ✨ Fitur Utama
-
-| Fitur | Deskripsi |
-|-------|-----------|
-| 🤖 **AI-Powered Assistant** | Chat dengan AI untuk mengelola produk toko |
-| 📦 **Manajemen Produk** | Tambah, edit, dan hapus produk dengan bahasa natural |
-| 💰 **Point of Sale (POS)** | Kasir otomatis dengan kalkulasi kembalian |
-| 📊 **Analisis Toko** | Valuasi aset, stok kritis, dan performa toko |
-| 🔄 **Auto-Refresh** | Data produk diperbarui otomatis tanpa reload halaman |
-| 🎯 **Smart Pattern Detection** | Pengenalan intent dengan akurasi tinggi (~99%) |
-| ⚡ **Super Cepat** | Ditenagai Groq AI (1.000 token/detik) |
-| 🛡️ **Multi-Layer Intelligence** | Pre-processing, validasi, dan auto-correction |
-
-## 🚀 Quick Start
-
-### Prasyarat
-
-- Node.js 18+ atau Bun
-- pnpm / npm / yarn
-- Akun [Groq](https://console.groq.com/) (gratis)
-- Akun [Supabase](https://supabase.com/) (gratis)
-
-### Instalasi
-
-**1. Clone repository**
-
-```bash
-git clone https://github.com/yourusername/warung-copilot.git
-cd warung-copilot
-```
-
-**2. Install dependencies**
-
-```bash
-pnpm install
-# atau
-npm install
-```
-
-**3. Siapkan environment variables**
-
-```bash
-cp .env.example .env.local
-```
-
-Isi `.env.local` dengan kredensial Anda:
-
-```env
-GROQ_API_KEY=your_groq_api_key_here
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-**4. Siapkan database Supabase**
-
-Jalankan SQL berikut di Supabase SQL Editor:
-
-```sql
-create table products (
-  id bigserial primary key,
-  name text not null,
-  price numeric not null,
-  stock integer not null default 0,
-  description text,
-  created_at timestamp with time zone default now()
-);
-
--- Disable RLS untuk MVP (aktifkan di production!)
-alter table products disable row level security;
-```
-
-> ⚠️ **Peringatan:** Row Level Security (RLS) dinonaktifkan hanya untuk keperluan MVP. Aktifkan kembali sebelum masuk production.
-
-**5. Jalankan development server**
-
-```bash
-pnpm dev
-```
-
-Buka [http://localhost:3000](http://localhost:3000) di browser.
-
-## 🎯 Contoh Penggunaan
-
-### Menambah Produk
-
-```text
-User: "tambah produk Indomie Goreng harga 3500 stok 100"
-AI:   ✅ Produk "Indomie Goreng" berhasil ditambahkan (Rp 3.500, stok: 100)
-```
-
-### Kasir / Point of Sale
-
-```text
-User: "beli 3 Indomie Goreng bayar 20000"
-AI:
-💰 Transaksi berhasil!
-- Total: Rp 10.500
-- Bayar: Rp 20.000
-- Kembalian: Rp 9.500
-📦 Stok Indomie Goreng: 100 → 97
-```
-
-### Query Produk
-
-```text
-User: "apa data no 1"
-AI:
-Berikut data produk No. 1:
-• Nama: Indomie Goreng
-• Harga: Rp 3.500
-• Stok: 97 unit
-• Deskripsi: Mie instan rasa goreng
-
-Ada yang bisa saya bantu lagi? 😊
-```
-
-### Analisis Toko
-
-```text
-User: "analisis toko"
-AI:
-📊 Analisis Warung:
-- Total Produk: 15 item
-- Total Stok: 847 unit
-- Valuasi Aset: Rp 2.450.000
-- Barang Stok Kritis: 3 item
-- Produk Termahal: Aqua Galon (Rp 20.000)
-```
-
-## 🏗️ Tech Stack
+## Tech Stack
 
 | Kategori | Teknologi |
 |----------|-----------|
-| **Framework** | [Next.js 16](https://nextjs.org/) (App Router & Turbopack) |
-| **Bahasa** | [TypeScript](https://www.typescriptlang.org/) |
-| **Styling** | [Tailwind CSS 4](https://tailwindcss.com/) |
-| **Database** | [Supabase](https://supabase.com/) (PostgreSQL) |
-| **AI Model** | [Groq AI](https://groq.com/) — `openai/gpt-oss-20b` (free tier) |
-| **UI Components** | Custom components + [Lucide Icons](https://lucide.dev/) |
-| **State Management** | [TanStack Query](https://tanstack.com/query) |
-| **Streaming** | [Vercel AI SDK](https://sdk.vercel.ai/) |
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Bahasa | TypeScript 5 |
+| Styling | Tailwind CSS 4 |
+| Database | Supabase (PostgreSQL) |
+| Model AI | Groq — `openai/gpt-oss-20b` |
+| State management | TanStack Query |
+| Streaming | Vercel AI SDK |
+| Ikon | Lucide |
 
-## 🧠 Arsitektur AI
+## Memulai
 
-### Sistem Multi-Layer Intelligence
+### Prasyarat
+
+- Node.js 18 atau lebih baru, atau Bun
+- pnpm, npm, atau yarn
+- Akun [Groq](https://console.groq.com/) dan API key
+- Proyek [Supabase](https://supabase.com/)
+
+### Instalasi
+
+1. Clone repository dan masuk ke direktorinya.
+
+   ```bash
+   git clone https://github.com/yourusername/warung-copilot.git
+   cd warung-copilot
+   ```
+
+2. Install dependensi.
+
+   ```bash
+   pnpm install
+   ```
+
+3. Salin file environment dan isi nilainya.
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   ```env
+   GROQ_API_KEY=
+   NEXT_PUBLIC_SUPABASE_URL=
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=
+   ```
+
+4. Buat tabel di Supabase SQL Editor.
+
+   ```sql
+   create table products (
+     id bigserial primary key,
+     name text not null,
+     price numeric not null,
+     stock integer not null default 0,
+     description text,
+     created_at timestamp with time zone default now()
+   );
+
+   -- Hanya untuk pengembangan. Lihat catatan di bawah.
+   alter table products disable row level security;
+   ```
+
+   > **Catatan keamanan:** Dengan RLS dinonaktifkan, siapa pun yang memiliki anon key dapat membaca dan mengubah data. Konfigurasi ini hanya untuk pengembangan. Aktifkan RLS dan definisikan policy sebelum digunakan di production.
+
+5. Jalankan development server.
+
+   ```bash
+   pnpm dev
+   ```
+
+   Aplikasi tersedia di [http://localhost:3000](http://localhost:3000).
+
+## Contoh Penggunaan
+
+**Menambah produk**
 
 ```text
-User Input
-    ↓
-[Layer 1] Pre-processing Pattern Detection
-    ↓  (bypass AI untuk query sederhana — ~90% traffic)
-[Layer 2] Dynamic System Message Builder
-    ↓  (prompt context-aware dengan data produk terkini)
-[Layer 3] Groq AI (openai/gpt-oss-20b)
-    ↓  (reasoning & tool calling)
-[Layer 4] Response Validation
-    ↓  (auto-retry jika AI salah)
-[Layer 5] Format & Stream Response
-    ↓
-User melihat hasil (1–3 detik)
+User: tambah produk Indomie Goreng harga 3500 stok 100
+AI:   Produk "Indomie Goreng" berhasil ditambahkan (Rp 3.500, stok: 100).
 ```
 
-### Optimasi Utama
+**Mencatat penjualan**
 
-- ✅ **Pre-processing** — ~90% query produk spesifik melewati AI, sehingga hemat token dan lebih cepat
-- ✅ **Dynamic Context** — System prompt menyertakan 10 produk terkini sebagai konteks
-- ✅ **Few-shot Learning** — Contoh percakapan konkret di dalam prompt
-- ✅ **Auto-correction** — Validation layer dengan mekanisme retry
-- ✅ **Rate Limit Handling** — Exponential backoff untuk error 429
-- ✅ **Logging & Analytics** — Melacak keputusan AI untuk debugging
+```text
+User: beli 3 Indomie Goreng bayar 20000
+AI:   Transaksi berhasil.
+      Total     : Rp 10.500
+      Bayar     : Rp 20.000
+      Kembalian : Rp 9.500
+      Stok Indomie Goreng: 100 → 97
+```
 
-## 📁 Struktur Proyek
+**Melihat data produk**
+
+```text
+User: apa data no 1
+AI:   Data produk No. 1:
+      Nama      : Indomie Goreng
+      Harga     : Rp 3.500
+      Stok      : 97 unit
+      Deskripsi : Mie instan rasa goreng
+```
+
+**Analisis toko**
+
+```text
+User: analisis toko
+AI:   Total produk     : 15 item
+      Total stok       : 847 unit
+      Valuasi aset     : Rp 2.450.000
+      Stok kritis      : 3 item
+      Produk termahal  : Aqua Galon (Rp 20.000)
+```
+
+## Arsitektur
+
+Setiap pesan dari pengguna melewati lima tahap pemrosesan:
+
+```text
+Input pengguna
+      │
+      ▼
+1. Pre-processing       Mendeteksi pola query sederhana dan menjawabnya
+      │                 langsung tanpa memanggil model.
+      ▼
+2. System prompt        Menyusun prompt dinamis berisi konteks 10 produk
+      │                 terbaru dan contoh percakapan (few-shot).
+      ▼
+3. Model (Groq)         Memilih dan memanggil tool yang sesuai.
+      │
+      ▼
+4. Validasi             Memeriksa hasil. Jika tidak sesuai, permintaan
+      │                 diulang.
+      ▼
+5. Format & streaming   Hasil dikirim ke antarmuka secara streaming.
+```
+
+Beberapa keputusan desain:
+
+- **Konteks terbatas.** Hanya 5 pesan terakhir yang dikirim ke model untuk menghemat token.
+- **Temperature 0,1** untuk menjaga konsistensi pemilihan tool.
+- **Retry dengan exponential backoff** ketika menerima error 429 (rate limit).
+- **Fallback** ke pre-processing saat model tidak tersedia.
+- **Logging** keputusan AI untuk keperluan debugging.
+
+## Struktur Proyek
 
 ```text
 warung-copilot/
 ├── app/
 │   ├── api/
-│   │   ├── chat/
-│   │   │   └── route.ts        # AI chat handler dengan 9 tools
-│   │   └── products/
-│   │       └── route.ts        # Product CRUD API
-│   ├── layout.tsx              # Root layout
-│   └── page.tsx                # Dashboard utama (split-screen)
+│   │   ├── chat/route.ts        # Handler chat AI dan definisi tool
+│   │   └── products/route.ts    # API CRUD produk
+│   ├── layout.tsx               # Root layout
+│   └── page.tsx                 # Dashboard utama (split-screen)
 ├── components/
-│   ├── ChatInterface.tsx       # UI chat AI dengan streaming
-│   ├── ProductTable.tsx        # Tabel produk dengan auto-refresh
-│   └── ui/                     # Reusable UI components
+│   ├── ChatInterface.tsx        # Antarmuka chat dengan streaming
+│   ├── ProductTable.tsx         # Tabel produk
+│   └── ui/                      # Komponen UI umum
 ├── lib/
-│   ├── supabase.ts             # Supabase client
-│   └── utils.ts                # Utility functions
-├── AI_IMPROVEMENTS.md          # Dokumentasi peningkatan AI
-└── README.md                   # File ini
+│   ├── supabase.ts              # Supabase client
+│   └── utils.ts                 # Fungsi utilitas
+├── AI_IMPROVEMENTS.md           # Catatan desain dan peningkatan AI
+└── README.md
 ```
 
-## 🎨 Detail Fitur
-
-### 1. AI Tools (9 Tools)
+## Daftar Tool
 
 | Tool | Fungsi |
 |------|--------|
-| `getProductByNumber` | Query produk berdasarkan nomor urut (wajib untuk "data no 1") |
-| `getProducts` | Ambil semua produk |
-| `createProduct` | Tambah produk baru |
-| `updateProduct` | Edit produk (nama / harga / stok / deskripsi) |
-| `deleteProduct` | Hapus produk (satuan / semua) |
-| `addStock` | Restok barang masuk |
-| `recordSale` | Kasir & potong stok otomatis |
-| `searchProducts` | Cari dan filter produk |
-| `getStoreAnalytics` | Analisis bisnis toko |
+| `getProductByNumber` | Mengambil produk berdasarkan nomor urut |
+| `getProducts` | Mengambil seluruh produk |
+| `createProduct` | Menambah produk baru |
+| `updateProduct` | Mengubah nama, harga, stok, atau deskripsi produk |
+| `deleteProduct` | Menghapus satu produk atau seluruh produk |
+| `addStock` | Menambah stok (barang masuk) |
+| `recordSale` | Mencatat penjualan dan mengurangi stok |
+| `searchProducts` | Mencari dan memfilter produk |
+| `getStoreAnalytics` | Menghitung ringkasan dan analisis toko |
 
-### 2. Smart Pattern Recognition
+## Konfigurasi
 
-AI otomatis mengenali:
+### Environment variables
 
-- **Nomor produk** — "data no 1", "produk nomor 2", "item #3"
-- **Slang angka** — "10k", "15rb", "1jt" (dikonversi otomatis)
-- **Typo minor** — "apadata no 1" tetap dipahami
-- **Bahasa natural** — "beli", "tambah", "hapus", "cek", "analisis"
-- **Context-aware** — AI mengingat 5 pesan terakhir
+| Variabel | Keterangan |
+|----------|------------|
+| `GROQ_API_KEY` | API key Groq |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL proyek Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key Supabase |
 
-### 3. Error Handling & Resilience
-
-- Auto-retry untuk rate limit (429) dengan exponential backoff
-- Fallback mechanism saat tool calling gagal
-- Validation layer untuk pengecekan konsistensi
-- Pesan error informatif dalam Bahasa Indonesia
-- Pre-processing tetap berjalan saat AI tidak tersedia
-
-## 🚀 Deployment
-
-### Vercel (Direkomendasikan)
-
-1. Push proyek ke GitHub.
-2. Import proyek di [Vercel](https://vercel.com).
-3. Tambahkan environment variables:
-   - `GROQ_API_KEY`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-4. Deploy (build otomatis dengan Turbopack).
-
-## 🔧 Konfigurasi
-
-### Rate Limit Groq (Free Tier 2026)
+### Batas penggunaan Groq (free tier)
 
 | Parameter | Batas |
 |-----------|-------|
-| **TPM** (tokens/menit) | 8.000 |
-| **RPM** (requests/menit) | 30 |
-| **TPD** (tokens/hari) | 200.000 |
-| **Kecepatan** | 1.000 token/detik |
-| **Model** | `openai/gpt-oss-20b` (production model) |
+| Tokens per menit (TPM) | 8.000 |
+| Requests per menit (RPM) | 30 |
+| Tokens per hari (TPD) | 200.000 |
 
-### Optimasi untuk Free Tier
+Batas ini dapat berubah. Periksa nilai terbaru di [dokumentasi Groq](https://console.groq.com/docs/rate-limits).
 
-- ✅ Context dibatasi 5 pesan terakhir (hemat token)
-- ✅ Pre-processing untuk bypass AI (hemat RPM)
-- ✅ Temperature 0.1 untuk konsistensi tinggi
-- ✅ Auto-retry dengan exponential backoff
-- ✅ Deskripsi tool yang ringkas dan presisi untuk mengurangi token
+## Deployment
 
-## 📊 Performa
+Proyek ini dapat dideploy ke Vercel:
 
-| Metrik | Nilai | Catatan |
-|--------|-------|---------|
-| AI Consistency | ~99% | Pre-processing + validation |
-| Response Time | 1–3 detik | Dengan Groq streaming |
-| Tool Call Accuracy | ~98% | Multi-layer validation |
-| Uptime | 99,9% | Supabase + Vercel |
-| Penggunaan Token | −90% | Pre-processing bypass |
+1. Push repository ke GitHub.
+2. Import proyek di [Vercel](https://vercel.com).
+3. Tambahkan ketiga environment variable pada pengaturan proyek.
+4. Deploy.
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
-<details>
-<summary><b>Error: Model not found / decommissioned</b></summary>
+**Model tidak ditemukan atau sudah dihentikan (decommissioned)**
+Pastikan model yang digunakan adalah `openai/gpt-oss-20b`. Daftar model yang tersedia ada di [dokumentasi Groq](https://console.groq.com/docs/models).
 
-Model sudah diperbarui ke `openai/gpt-oss-20b` (production model yang stabil).
+**Error 429 (rate limit)**
+Retry otomatis sudah tersedia. Jika error berlanjut, kuota harian (TPD) kemungkinan telah habis.
 
-</details>
+**Respons AI tidak sesuai harapan**
+Periksa logika pre-processing dan validasi di `app/api/chat/route.ts`, lalu lihat log konsol untuk melihat keputusan yang diambil.
 
-<details>
-<summary><b>Error: Rate limit 429</b></summary>
+**Tabel produk tidak diperbarui**
+Data diambil ulang secara berkala oleh TanStack Query (interval 3 detik). Periksa tab Network pada browser untuk melihat error dari `/api/products`.
 
-Auto-retry sudah built-in. Tunggu beberapa detik, sistem akan mencoba ulang secara otomatis.
+## Kontribusi
 
-</details>
-
-<details>
-<summary><b>Respons AI tidak konsisten</b></summary>
-
-1. Cek pre-processing pattern di `route.ts` baris 688.
-2. Tinjau validation layer di baris 763.
-3. Lihat console log untuk informasi debugging.
-
-</details>
-
-<details>
-<summary><b>Tabel tidak auto-update</b></summary>
-
-React Query me-refresh data otomatis setiap 3 detik. Cek tab Network di browser untuk melihat apakah ada error API.
-
-</details>
-
-## 🤝 Kontribusi
-
-Kontribusi sangat diterima! Langkah-langkahnya:
-
-1. Fork repository ini.
-2. Buat feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit perubahan: `git commit -m 'Add some AmazingFeature'`
-4. Push ke branch: `git push origin feature/AmazingFeature`
+1. Fork repository.
+2. Buat branch fitur: `git checkout -b feature/nama-fitur`
+3. Commit perubahan: `git commit -m "Tambah nama-fitur"`
+4. Push ke branch: `git push origin feature/nama-fitur`
 5. Buka Pull Request.
 
-## 🗺️ Roadmap
+## Roadmap
 
-- [ ] Caching layer untuk query produk
-- [ ] Multi-language support (switch EN/ID)
-- [ ] Export data ke Excel/CSV
-- [ ] Grafik penjualan & tren
+- [ ] Caching untuk query produk
+- [ ] Dukungan multi-bahasa (ID/EN)
+- [ ] Ekspor data ke CSV/Excel
+- [ ] Grafik penjualan dan tren
 - [ ] Optimasi tampilan mobile
 - [ ] Dark mode
-- [ ] Autentikasi pengguna & multi-store
+- [ ] Autentikasi pengguna dan dukungan multi-toko
 - [ ] Integrasi barcode scanner
 
-## 📚 Dokumentasi
+## Lisensi
 
-- **Arsitektur AI**: [AI_IMPROVEMENTS.md](./AI_IMPROVEMENTS.md)
-- **API Reference**: lihat folder `app/api/`
-- **Model Groq**: [console.groq.com/docs/models](https://console.groq.com/docs/models)
-- **Dokumentasi Supabase**: [supabase.com/docs](https://supabase.com/docs)
-
-## 📄 Lisensi
-
-Proyek ini dilisensikan di bawah [MIT License](./LICENSE).
-
-## 🙏 Ucapan Terima Kasih
-
-- [Groq](https://groq.com/) — inferensi AI super cepat (gratis!)
-- [Supabase](https://supabase.com/) — database yang luar biasa
-- [Vercel](https://vercel.com/) — deployment yang mulus
-- [Next.js](https://nextjs.org/) — framework yang keren
-
-## 📞 Dukungan
-
-- 💬 Issues: [GitHub Issues](https://github.com/yourusername/warung-copilot/issues)
-- 📖 Dokumentasi: [AI_IMPROVEMENTS.md](./AI_IMPROVEMENTS.md)
-- ⭐ Beri bintang di repo ini jika bermanfaat!
-
----
-
-**Dibuat dengan ❤️ untuk para pemilik warung Indonesia**
-
-**Terakhir diperbarui**: 22 November 2026
+Didistribusikan di bawah [MIT License](./LICENSE).
