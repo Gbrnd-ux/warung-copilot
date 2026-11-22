@@ -325,3 +325,5 @@ This project is licensed under the MIT License.
 **Built with ❤️ for Indonesian Warung owners**
 
 **Last Updated**: November 22, 2026
+#   w a r u n g - c o p i l o t  
+ 
